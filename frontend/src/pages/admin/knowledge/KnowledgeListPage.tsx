@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Database, FileBarChart, FolderOpen, Layers, Pencil, Plus, RefreshCw, Trash2 } from "lucide-react";
+import { Database, FileBarChart, FolderOpen, Layers, Pencil, Plus, RefreshCw, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
@@ -30,6 +30,7 @@ import { Input } from "@/components/ui/input";
 import type { KnowledgeBase, PageResult } from "@/services/knowledgeService";
 import { deleteKnowledgeBase, getKnowledgeBasesPage, renameKnowledgeBase } from "@/services/knowledgeService";
 import { CreateKnowledgeBaseDialog } from "@/components/admin/CreateKnowledgeBaseDialog";
+import { KbMemberDialog } from "@/components/admin/KbMemberDialog";
 import { getErrorMessage } from "@/utils/error";
 import { cn } from "@/lib/utils";
 
@@ -44,6 +45,11 @@ export function KnowledgeListPage() {
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<KnowledgeBase | null>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [memberDialog, setMemberDialog] = useState<{ open: boolean; kbId: string; kbName: string }>({
+    open: false,
+    kbId: "",
+    kbName: "",
+  });
   const [searchName, setSearchName] = useState(nameFromQuery);
   const [keyword, setKeyword] = useState(nameFromQuery);
   const [pageNo, setPageNo] = useState(1);
@@ -361,6 +367,16 @@ export function KnowledgeListPage() {
                         <Button
                           variant="outline"
                           size="sm"
+                          onClick={() =>
+                            setMemberDialog({ open: true, kbId: kb.id, kbName: kb.name })
+                          }
+                        >
+                          <Users className="w-4 h-4 mr-0.1" />
+                          成员
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
                           onClick={() => {
                             setRenameDialog({ open: true, kb });
                           }}
@@ -460,6 +476,14 @@ export function KnowledgeListPage() {
           loadKnowledgeBases(1, keyword);
           loadStats(keyword);
         }}
+      />
+
+      {/* 成员管理对话框 */}
+      <KbMemberDialog
+        open={memberDialog.open}
+        onOpenChange={(open) => setMemberDialog((prev) => ({ ...prev, open }))}
+        kbId={memberDialog.kbId}
+        kbName={memberDialog.kbName}
       />
     </div>
   );

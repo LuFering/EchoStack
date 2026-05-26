@@ -18,6 +18,9 @@ import { SystemSettingsPage } from "@/pages/admin/settings/SystemSettingsPage";
 import { SampleQuestionPage } from "@/pages/admin/sample-questions/SampleQuestionPage";
 import { QueryTermMappingPage } from "@/pages/admin/query-term-mapping/QueryTermMappingPage";
 import { UserListPage } from "@/pages/admin/users/UserListPage";
+import { TenantListPage } from "@/pages/admin/tenants/TenantListPage";
+import { DocumentReviewPage } from "@/pages/admin/review/DocumentReviewPage";
+import { AuditLogPage } from "@/pages/admin/audit/AuditLogPage";
 import { useAuthStore } from "@/stores/authStore";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
@@ -152,7 +155,19 @@ export const router = createBrowserRouter([
       {
         path: "users",
         element: <UserListPage />
-      }
+      },
+      {
+        path: "tenants",
+        element: <TenantListPage />
+      },
+      {
+        path: "review",
+        element: <DocumentReviewPage />
+      },
+      {
+        path: "audit",
+        element: <AuditLogPage />
+      },
     ]
   },
   {

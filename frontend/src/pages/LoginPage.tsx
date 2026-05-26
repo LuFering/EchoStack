@@ -1,19 +1,27 @@
 import * as React from "react";
-import { Eye, EyeOff, Lock, User } from "lucide-react";
+import { Building2, Eye, EyeOff, Lock, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
 import { useAuthStore } from "@/stores/authStore";
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const { login, isLoading } = useAuthStore();
+  const { login, isLoading, fetchProviders } = useAuthStore();
   const [showPassword, setShowPassword] = React.useState(false);
   const [remember, setRemember] = React.useState(true);
+  const [providers, setProviders] = React.useState<string[]>([]);
   const [form, setForm] = React.useState({ username: "admin", password: "admin" });
   const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    fetchProviders().then(setProviders).catch(() => setProviders(["local"]));
+  }, []);
+
+  const hasSsoProviders = providers.some((p) => p !== "local");
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -24,12 +32,20 @@ export function LoginPage() {
     }
     try {
       await login(form.username.trim(), form.password.trim());
-      if (!remember) {
-        // 如需仅在内存中保存登录态，可在此扩展。
-      }
+      if (!remember) {}
       navigate("/chat");
     } catch (err) {
       setError((err as Error).message || "登录失败，请稍后重试。");
+    }
+  };
+
+  const handleSsoLogin = async (providerType: string) => {
+    setError(null);
+    try {
+      await login(form.username.trim() || "sso_user", "", providerType);
+      navigate("/chat");
+    } catch (err) {
+      setError((err as Error).message || "SSO 登录失败，请稍后重试。");
     }
   };
 
@@ -43,6 +59,35 @@ export function LoginPage() {
             登录后继续你的检索增强对话。
           </p>
         </div>
+
+        {/* SSO providers */}
+        {hasSsoProviders && (
+          <div className="mb-4 space-y-2">
+            {providers.filter((p) => p !== "local").map((provider) => (
+              <Button
+                key={provider}
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={() => handleSsoLogin(provider)}
+              >
+                <Building2 className="mr-2 h-4 w-4" />
+                {provider.toUpperCase()} 登录
+              </Button>
+            ))}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <Separator />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  或使用账号密码
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-2">
             <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">

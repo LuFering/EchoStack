@@ -26,8 +26,12 @@ import com.nageoffer.ai.ragent.user.dao.entity.UserDO;
 import com.nageoffer.ai.ragent.user.dao.mapper.UserMapper;
 import com.nageoffer.ai.ragent.framework.exception.ClientException;
 import com.nageoffer.ai.ragent.user.service.AuthService;
+import com.nageoffer.ai.ragent.user.service.auth.AuthenticationProviderManager;
+import com.nageoffer.ai.ragent.user.service.auth.AuthenticationRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -36,23 +40,28 @@ public class AuthServiceImpl implements AuthService {
     private static final String DEFAULT_AVATAR_URL = "https://avatars.githubusercontent.com/u/583231?v=4";
 
     private final UserMapper userMapper;
+    private final AuthenticationProviderManager providerManager;
 
     @Override
     public LoginVO login(LoginRequest requestParam) {
         String username = requestParam.getUsername();
         String password = requestParam.getPassword();
-        if (StrUtil.isBlank(username) || StrUtil.isBlank(password)) {
-            throw new ClientException("用户名或密码不能为空");
-        }
-        UserDO user = findByUsername(username);
-        if (user == null || !passwordMatches(password, user.getPassword())) {
-            throw new ClientException("用户名或密码错误");
-        }
-        if (user.getId() == null) {
-            throw new ClientException("用户信息异常");
-        }
-        String loginId = user.getId().toString();
+        String providerType = StrUtil.isBlank(requestParam.getProviderType())
+                ? "local" : requestParam.getProviderType();
+
+        // 使用认证提供者管理器进行认证
+        AuthenticationRequest authRequest = AuthenticationRequest.builder()
+                .providerType(providerType)
+                .username(username)
+                .password(password)
+                .build();
+
+        String loginId = providerManager.getProvider(providerType).authenticate(authRequest);
+
+        // 使用数据库中的用户 ID 登录
         StpUtil.login(loginId);
+
+        UserDO user = userMapper.selectById(loginId);
         String avatar = StrUtil.isBlank(user.getAvatar()) ? DEFAULT_AVATAR_URL : user.getAvatar();
         return new LoginVO(loginId, user.getRole(), StpUtil.getTokenValue(), avatar);
     }
@@ -62,21 +71,10 @@ public class AuthServiceImpl implements AuthService {
         StpUtil.logout();
     }
 
-    private UserDO findByUsername(String username) {
-        if (StrUtil.isBlank(username)) {
-            return null;
-        }
-        return userMapper.selectOne(
-                Wrappers.lambdaQuery(UserDO.class)
-                        .eq(UserDO::getUsername, username)
-                        .eq(UserDO::getDeleted, 0)
-        );
-    }
-
-    private boolean passwordMatches(String input, String stored) {
-        if (stored == null) {
-            return input == null;
-        }
-        return stored.equals(input);
+    /**
+     * 获取已启用的认证提供者列表（供前端 SSO 按钮使用）
+     */
+    public List<String> getEnabledProviders() {
+        return providerManager.getEnabledProviders();
     }
 }

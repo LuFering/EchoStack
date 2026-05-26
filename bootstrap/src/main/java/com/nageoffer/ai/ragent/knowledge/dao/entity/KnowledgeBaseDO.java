@@ -64,6 +64,21 @@ public class KnowledgeBaseDO {
     private String createdBy;
 
     /**
+     * 所属租户 ID
+     */
+    private String tenantId;
+
+    /**
+     * 可见性：PRIVATE(私有) / TENANT(租户内可见) / PUBLIC(公开)
+     */
+    private String visibility;
+
+    /**
+     * 知识库描述
+     */
+    private String description;
+
+    /**
      * 修改人
      */
     private String updatedBy;

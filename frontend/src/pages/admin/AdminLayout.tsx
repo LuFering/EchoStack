@@ -7,6 +7,7 @@ import {
   ChevronsRight,
   ClipboardList,
   Database,
+  FileSearch,
   GitBranch,
   Github,
   Layers,
@@ -18,10 +19,12 @@ import {
   KeyRound,
   Search,
   Settings,
+  Shield,
   Upload,
   Users,
   FolderKanban,
-  Workflow
+  Workflow,
+  Building2
 } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import { Button } from "@/components/ui/button";
@@ -139,6 +142,21 @@ const menuGroups: MenuGroup[] = [
         icon: Users
       },
       {
+        path: "/admin/tenants",
+        label: "租户管理",
+        icon: Building2
+      },
+      {
+        path: "/admin/review",
+        label: "文档审核",
+        icon: FileSearch
+      },
+      {
+        path: "/admin/audit",
+        label: "审计日志",
+        icon: Shield
+      },
+      {
         path: "/admin/sample-questions",
         label: "示例问题",
         icon: Lightbulb
@@ -162,7 +180,10 @@ const breadcrumbMap: Record<string, string> = {
   "sample-questions": "示例问题",
   mappings: "关键词映射",
   settings: "系统设置",
-  users: "用户管理"
+  users: "用户管理",
+  tenants: "租户管理",
+  review: "文档审核",
+  audit: "审计日志"
 };
 
 export function AdminLayout() {

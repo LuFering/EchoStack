@@ -8,11 +8,45 @@ export interface User {
   userId: string;
   username?: string;
   role: string;
+  roleList?: string[];
+  permissionList?: string[];
+  tenantId?: string;
+  isTenantAdmin?: boolean;
+  isSuperAdmin?: boolean;
   token: string;
   avatar?: string;
 }
 
 export type CurrentUser = Omit<User, "token">;
+
+/** 租户信息 */
+export interface Tenant {
+  id: string;
+  name: string;
+  domain: string;
+  status: string;
+  planType: string;
+  maxUsers: number;
+  maxKb: number;
+  contactName: string;
+  contactEmail: string;
+  contactPhone: string;
+  remark: string;
+  createTime: string;
+  updateTime: string;
+}
+
+/** 知识库成员角色 */
+export type KbMemberRole = "admin" | "editor" | "viewer";
+
+/** 文档审核状态 */
+export type ReviewStatus = "draft" | "pending_review" | "approved" | "rejected" | "published";
+
+/** SSO 认证提供者 */
+export interface AuthProvider {
+  type: string;
+  enabled: boolean;
+}
 
 export interface Session {
   id: string;

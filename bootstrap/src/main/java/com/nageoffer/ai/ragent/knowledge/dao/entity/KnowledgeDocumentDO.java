@@ -134,6 +134,36 @@ public class KnowledgeDocumentDO {
     private String status;
 
     /**
+     * 审核状态：draft / pending_review / approved / rejected / published
+     */
+    private String reviewStatus;
+
+    /**
+     * 审核人ID
+     */
+    private String reviewerId;
+
+    /**
+     * 审核意见
+     */
+    private String reviewComment;
+
+    /**
+     * 审核时间
+     */
+    private Date reviewTime;
+
+    /**
+     * 文档过期时间（过期后自动归档）
+     */
+    private Date expireTime;
+
+    /**
+     * 归档状态：ACTIVE / ARCHIVED
+     */
+    private String archiveStatus;
+
+    /**
      * 创建人
      */
     private String createdBy;

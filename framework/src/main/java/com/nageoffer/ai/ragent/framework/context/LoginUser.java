@@ -22,6 +22,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /**
  * 当前登录用户的上下文快照
  */
@@ -47,7 +49,46 @@ public class LoginUser {
     private String role;
 
     /**
+     * 用户角色列表
+     */
+    private List<String> roleList;
+
+    /**
+     * 用户权限列表
+     */
+    private List<String> permissionList;
+
+    /**
+     * 所属租户 ID
+     */
+    private String tenantId;
+
+    /**
+     * 是否为租户管理员
+     */
+    private Boolean isTenantAdmin;
+
+    /**
+     * 是否为超级管理员（系统级）
+     */
+    private Boolean isSuperAdmin;
+
+    /**
      * 用户头像
      */
     private String avatar;
+
+    /**
+     * 判断是否为超级管理员
+     */
+    public boolean isSuperAdmin() {
+        return Boolean.TRUE.equals(isSuperAdmin);
+    }
+
+    /**
+     * 判断是否为租户管理员
+     */
+    public boolean isTenantAdmin() {
+        return Boolean.TRUE.equals(isTenantAdmin) || isSuperAdmin();
+    }
 }

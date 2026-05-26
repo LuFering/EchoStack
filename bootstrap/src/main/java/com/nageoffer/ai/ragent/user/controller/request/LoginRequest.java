@@ -25,4 +25,9 @@ public class LoginRequest {
     private String username;
 
     private String password;
+
+    /**
+     * 认证提供者类型：local / oauth2 / ldap（默认 local）
+     */
+    private String providerType;
 }

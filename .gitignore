@@ -42,3 +42,6 @@ node_modules/
 dist/
 .vite/
 .env.local
+
+### Build temp files ###
+build-output.log

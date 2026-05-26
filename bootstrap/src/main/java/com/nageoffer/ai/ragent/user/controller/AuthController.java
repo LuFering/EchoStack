@@ -22,10 +22,15 @@ import com.nageoffer.ai.ragent.user.controller.vo.LoginVO;
 import com.nageoffer.ai.ragent.framework.convention.Result;
 import com.nageoffer.ai.ragent.framework.web.Results;
 import com.nageoffer.ai.ragent.user.service.AuthService;
+import com.nageoffer.ai.ragent.user.service.auth.AuthenticationProviderManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * 认证控制器
@@ -36,6 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final AuthenticationProviderManager providerManager;
 
     /**
      * 用户登录接口
@@ -52,5 +58,17 @@ public class AuthController {
     public Result<Void> logout() {
         authService.logout();
         return Results.success();
+    }
+
+    /**
+     * 获取已启用的认证提供者列表（供前端 SSO 按钮使用）
+     */
+    @GetMapping("/auth/providers")
+    public Result<List<Map<String, Object>>> getProviders() {
+        List<String> types = providerManager.getEnabledProviders();
+        List<Map<String, Object>> result = types.stream()
+                .map(type -> Map.<String, Object>of("type", type, "enabled", true))
+                .toList();
+        return Results.success(result);
     }
 }

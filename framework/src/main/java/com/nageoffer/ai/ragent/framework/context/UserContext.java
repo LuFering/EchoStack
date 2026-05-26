@@ -20,6 +20,9 @@ package com.nageoffer.ai.ragent.framework.context;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import com.nageoffer.ai.ragent.framework.exception.ClientException;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * 用户上下文容器（基于 TTL 传递当前线程的登录用户）
  */
@@ -96,5 +99,62 @@ public final class UserContext {
      */
     public static boolean hasUser() {
         return CONTEXT.get() != null;
+    }
+
+    /**
+     * 获取当前租户 ID（未登录返回 null）
+     */
+    public static String getTenantId() {
+        LoginUser user = CONTEXT.get();
+        return user == null ? null : user.getTenantId();
+    }
+
+    /**
+     * 获取当前用户角色列表（未登录返回空列表）
+     */
+    public static List<String> getRoleList() {
+        LoginUser user = CONTEXT.get();
+        return user == null || user.getRoleList() == null
+                ? Collections.emptyList() : user.getRoleList();
+    }
+
+    /**
+     * 获取当前用户权限列表（未登录返回空列表）
+     */
+    public static List<String> getPermissionList() {
+        LoginUser user = CONTEXT.get();
+        return user == null || user.getPermissionList() == null
+                ? Collections.emptyList() : user.getPermissionList();
+    }
+
+    /**
+     * 判断当前用户是否拥有指定权限
+     */
+    public static boolean hasPermission(String permission) {
+        LoginUser user = CONTEXT.get();
+        if (user == null) {
+            return false;
+        }
+        if (user.isSuperAdmin()) {
+            return true;
+        }
+        List<String> permissions = user.getPermissionList();
+        return permissions != null && permissions.contains(permission);
+    }
+
+    /**
+     * 判断当前用户是否为超级管理员
+     */
+    public static boolean isSuperAdmin() {
+        LoginUser user = CONTEXT.get();
+        return user != null && user.isSuperAdmin();
+    }
+
+    /**
+     * 判断当前用户是否为租户管理员
+     */
+    public static boolean isTenantAdmin() {
+        LoginUser user = CONTEXT.get();
+        return user != null && user.isTenantAdmin();
     }
 }

@@ -17,7 +17,7 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
     username: postgres
     password: postgres
-    url: jdbc:postgresql://127.0.0.1:5432/ragent?client_encoding=UTF8
+    url: jdbc:postgresql://127.0.0.1:5433/ragent?client_encoding=UTF8
     hikari:
       connection-timeout: 5000
       idle-timeout: 600000
@@ -193,3 +193,46 @@ sa-token:
 
 app:
   demo-mode: false
+
+# ============================================
+# Enterprise Multi-Tenant Configuration
+# ============================================
+enterprise:
+  # 多租户配置
+  multi-tenant:
+    enabled: true
+    # 租户隔离策略: shared(field共享表) / schema(独立schema) / database(独立数据库)
+    isolation-strategy: field
+
+  # 认证提供者配置
+  auth:
+    providers:
+      - type: local
+        enabled: true
+      - type: oauth2
+        enabled: false
+        issuer-uri: ${SSO_ISSUER_URI:}
+        client-id: ${SSO_CLIENT_ID:}
+        client-secret: ${SSO_CLIENT_SECRET:}
+      - type: ldap
+        enabled: false
+        url: ${LDAP_URL:}
+        base-dn: ${LDAP_BASE_DN:}
+
+  # 审计日志
+  audit:
+    enabled: true
+    # 审计日志存储天数（0=永不过期）
+    retention-days: 365
+
+  # 数据脱敏
+  data-mask:
+    enabled: false
+
+  # 文件上传安全
+  security:
+    upload:
+      # 允许的文件类型（白名单，逗号分隔）
+      allowed-extensions: pdf,docx,xlsx,pptx,txt,md,csv
+      # 最大文件大小（MB）
+      max-file-size-mb: 50

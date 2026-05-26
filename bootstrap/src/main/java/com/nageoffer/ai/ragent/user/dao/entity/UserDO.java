@@ -54,6 +54,41 @@ public class UserDO {
      */
     private String role;
 
+    /**
+     * 所属租户 ID
+     */
+    private String tenantId;
+
+    /**
+     * 所属部门 ID
+     */
+    private String departmentId;
+
+    /**
+     * 用户状态：ACTIVE / DISABLED / LOCKED
+     */
+    private String status;
+
+    /**
+     * 是否为租户管理员：0 否 / 1 是
+     */
+    private Integer isTenantAdmin;
+
+    /**
+     * 真实姓名
+     */
+    private String realName;
+
+    /**
+     * 邮箱
+     */
+    private String email;
+
+    /**
+     * 手机号
+     */
+    private String phone;
+
     @TableField(fill = FieldFill.INSERT)
     private Date createTime;
 

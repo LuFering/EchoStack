@@ -5,7 +5,12 @@ import { create } from "zustand";
 import { toast } from "sonner";
 
 import type { User } from "@/types";
-import { getCurrentUser, login as loginRequest, logout as logoutRequest } from "@/services/authService";
+import {
+  getCurrentUser,
+  login as loginRequest,
+  logout as logoutRequest,
+  getEnabledProviders,
+} from "@/services/authService";
 import { setAuthToken } from "@/services/api";
 import { useChatStore } from "@/stores/chatStore";
 import { storage } from "@/utils/storage";
@@ -15,10 +20,11 @@ interface AuthState {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (username: string, password: string) => Promise<void>;
+  login: (username: string, password: string, providerType?: string) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
   fetchCurrentUser: () => Promise<void>;
+  fetchProviders: () => Promise<string[]>;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -26,14 +32,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   token: storage.getToken(),
   isAuthenticated: Boolean(storage.getToken()),
   isLoading: false,
-  login: async (username, password) => {
+  login: async (username, password, providerType) => {
     set({ isLoading: true });
     try {
-      const data = await loginRequest(username, password);
+      const data = await loginRequest(username, password, providerType);
       const user = {
         userId: data.userId,
         username: data.username || username,
         role: data.role,
+        roleList: data.roleList || [],
+        permissionList: data.permissionList || [],
+        tenantId: data.tenantId,
+        isTenantAdmin: data.isTenantAdmin,
+        isSuperAdmin: data.isSuperAdmin,
         token: data.token,
         avatar: data.avatar
       };
@@ -110,6 +121,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ user: nextUser, token, isAuthenticated: true });
     } catch {
       return;
+    }
+  },
+  fetchProviders: async () => {
+    try {
+      const providers = await getEnabledProviders();
+      return providers.map(p => p.type);
+    } catch {
+      return ["local"];
     }
   }
 }));
